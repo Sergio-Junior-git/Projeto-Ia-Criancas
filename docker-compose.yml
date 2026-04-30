@@ -1,0 +1,16 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_DEBUG: "false"
+      SECRET_KEY: "${SECRET_KEY:-docker-dev-secret-change-me}"
+      DATABASE_URL: "sqlite:////app/instance/hospital_estudos.db"
+      SESSION_COOKIE_SECURE: "false"
+      AI_PROVIDER: "local"
+      GROQ_API_KEY: ""
+      GROQ_MODEL: "llama-3.1-8b-instant"
+    volumes:
+      - ./instance:/app/instance
+    restart: unless-stopped

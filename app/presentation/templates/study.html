@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ topic }} | Estudo no Hospital{% endblock %}
+{% block content %}
+<section class="study-shell" data-discipline="{{ discipline_key }}" data-level="{{ level_key }}" data-topic="{{ topic }}">
+    <aside class="study-side">
+        <a class="back-link" href="{{ url_for('web.discipline', discipline=discipline_key) }}">Voltar</a>
+        <span class="eyebrow">{{ disciplines[discipline_key].name }} | {{ levels[level_key] }}</span>
+        <h1>{{ topic }}</h1>
+        <div class="mode-tabs" role="tablist">
+            <button class="tab active" data-target="explanationPanel">Explicacao</button>
+            <button class="tab" data-target="activityPanel">Atividades</button>
+        </div>
+    </aside>
+
+    <section class="study-main">
+        <article class="content-panel active" id="explanationPanel">
+            <h2>Entendendo o assunto</h2>
+            <p>{{ explanation }}</p>
+            <button class="primary-button" data-target-tab="activityPanel">Fazer atividade</button>
+        </article>
+
+        <article class="content-panel" id="activityPanel">
+            <div class="activity-header">
+                <div>
+                    <h2>Atividade interativa</h2>
+                    <p id="difficultyLabel">A dificuldade aparece aqui.</p>
+                </div>
+                <button class="ghost-button" id="newQuestion">Nova questao</button>
+            </div>
+
+            <div id="activityBox" class="activity-box">
+                <p>Clique em "Nova questao" para comecar.</p>
+            </div>
+
+            <div class="answer-area">
+                <div id="optionsBox" class="options-box"></div>
+                <label id="answerLabel">
+                    Sua resposta
+                    <input id="answerInput" type="text" autocomplete="off">
+                </label>
+                <div class="button-row">
+                    <button class="primary-button" id="sendAnswer">Responder</button>
+                    <button class="hint-button" id="hintButton">Dica</button>
+                    <button class="ghost-button" id="retryButton" hidden>Tentar de novo</button>
+                </div>
+            </div>
+
+            <div id="hintBox" class="hint-box" hidden></div>
+            <div id="feedbackBox" class="feedback-box" hidden></div>
+        </article>
+    </section>
+</section>
+
+<script src="{{ url_for('static', filename='js/study.js') }}"></script>
+{% endblock %}

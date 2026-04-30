@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Entrar | Estudo no Hospital{% endblock %}
+{% block content %}
+<section class="auth-layout">
+    <div class="welcome-panel">
+        <span class="eyebrow">Aprender no seu ritmo</span>
+        <h1>Um cantinho de estudo leve, colorido e inteligente.</h1>
+        <p>Atividades de Portugues, Matematica e Linguagens adaptadas conforme idade, escolaridade, acertos e erros.</p>
+    </div>
+
+    <form class="auth-card" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <h2>Entrar</h2>
+        <label>
+            E-mail
+            <input type="email" name="email" required autocomplete="email">
+        </label>
+        <label>
+            Senha
+            <input type="password" name="password" required autocomplete="current-password">
+        </label>
+        <button class="primary-button" type="submit">Entrar</button>
+        <p class="switch-auth">Ainda nao tem conta? <a href="{{ url_for('web.register') }}">Criar cadastro</a></p>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Disciplinas | Estudo no Hospital{% endblock %}
+{% block content %}
+<section class="section-heading">
+    <span class="eyebrow">Escolha uma disciplina</span>
+    <h1>O que voce quer estudar agora?</h1>
+    <p>Depois voce escolhe seu nivel escolar e um assunto. As atividades se ajustam ao seu desempenho.</p>
+</section>
+
+<section class="discipline-grid">
+    {% for key, item in disciplines.items() %}
+        <a class="discipline-card" style="--accent: {{ item.color }}" href="{{ url_for('web.discipline', discipline=key) }}">
+            <span class="discipline-icon">{{ item.icon }}</span>
+            <h2>{{ item.name }}</h2>
+            <p>{{ item.description }}</p>
+        </a>
+    {% endfor %}
+</section>
+
+<section class="progress-panel">
+    <div>
+        <h2>Seu progresso</h2>
+        <p>As mudancas de dificuldade aparecem conforme voce responde.</p>
+    </div>
+    <button class="ghost-button" id="resetProgress">Reiniciar progresso</button>
+</section>
+
+{% if progress_items %}
+    <div class="progress-list">
+        {% for item in progress_items %}
+            <article class="progress-item">
+                <strong>{{ disciplines[item.discipline].name }} - {{ item.topic }}</strong>
+                <span>{{ levels[item.level] }} | dificuldade {{ item.difficulty }}</span>
+                <span>{{ item.correct_count }} acertos e {{ item.wrong_count }} erros</span>
+            </article>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="empty-state">Voce ainda nao respondeu atividades. Comece por uma disciplina acima.</p>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

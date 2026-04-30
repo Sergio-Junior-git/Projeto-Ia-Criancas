@@ -1,0 +1,458 @@
+:root {
+    --bg: #f7fbff;
+    --text: #172033;
+    --muted: #61708a;
+    --line: #d9e4f2;
+    --panel: #ffffff;
+    --primary: #2563eb;
+    --primary-dark: #1e40af;
+    --sun: #f59e0b;
+    --mint: #14b8a6;
+    --pink: #ec4899;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    color: var(--text);
+    background: linear-gradient(180deg, #f7fbff 0%, #eef7f3 100%);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+    color: inherit;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 72px;
+    padding: 16px clamp(18px, 4vw, 56px);
+}
+
+.brand, .nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand {
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.brand-mark {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 8px;
+    color: #fff;
+    background: var(--primary);
+}
+
+.nav a, .back-link {
+    color: var(--primary-dark);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.page {
+    width: min(1120px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 22px 0 56px;
+}
+
+.auth-layout {
+    display: grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap: 28px;
+    align-items: stretch;
+    min-height: calc(100vh - 150px);
+}
+
+.welcome-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(28px, 5vw, 68px);
+    border-radius: 8px;
+    color: #102033;
+    background:
+        linear-gradient(135deg, rgba(37, 99, 235, .16), rgba(20, 184, 166, .18)),
+        #ffffff;
+    border: 1px solid var(--line);
+}
+
+.welcome-panel h1, .section-heading h1, .study-side h1 {
+    margin: 10px 0;
+    font-size: clamp(2rem, 4vw, 4rem);
+    line-height: 1;
+    letter-spacing: 0;
+}
+
+.welcome-panel p, .section-heading p, .level-row p, .progress-panel p, .activity-header p {
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.eyebrow {
+    color: var(--primary-dark);
+    font-size: .82rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.auth-card, .content-panel, .level-row, .progress-panel, .progress-item {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .92);
+    box-shadow: 0 18px 50px rgba(23, 32, 51, .08);
+}
+
+.auth-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+    padding: clamp(24px, 4vw, 44px);
+}
+
+.auth-card h2 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+label {
+    display: grid;
+    gap: 8px;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+input {
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0 14px;
+    color: var(--text);
+    font: inherit;
+}
+
+input:focus {
+    outline: 3px solid rgba(37, 99, 235, .2);
+    border-color: var(--primary);
+}
+
+button, .topic-list a {
+    min-height: 44px;
+    border: 0;
+    border-radius: 8px;
+    padding: 0 16px;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 800;
+}
+
+.primary-button {
+    color: #fff;
+    background: var(--primary);
+}
+
+.primary-button:hover {
+    background: var(--primary-dark);
+}
+
+.ghost-button, .hint-button {
+    color: var(--primary-dark);
+    background: #eaf2ff;
+}
+
+.hint-button {
+    color: #7c2d12;
+    background: #fff1d6;
+}
+
+.switch-auth {
+    color: var(--muted);
+}
+
+.section-heading {
+    margin: 20px 0 26px;
+}
+
+.section-heading.compact h1 {
+    font-size: clamp(1.8rem, 3vw, 3rem);
+}
+
+.discipline-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.discipline-card {
+    min-height: 230px;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-top: 6px solid var(--accent);
+    border-radius: 8px;
+    background: #fff;
+    text-decoration: none;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.discipline-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(23, 32, 51, .12);
+}
+
+.discipline-icon {
+    display: grid;
+    width: 58px;
+    height: 58px;
+    place-items: center;
+    border-radius: 8px;
+    color: #fff;
+    background: var(--accent);
+    font-weight: 900;
+}
+
+.discipline-card p {
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.progress-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    margin-top: 30px;
+    padding: 18px;
+}
+
+.progress-panel h2 {
+    margin: 0 0 4px;
+}
+
+.progress-list, .level-stack {
+    display: grid;
+    gap: 14px;
+    margin-top: 16px;
+}
+
+.progress-item {
+    display: grid;
+    gap: 6px;
+    padding: 16px;
+}
+
+.progress-item span, .empty-state {
+    color: var(--muted);
+}
+
+.level-row {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 18px;
+    align-items: center;
+    padding: 20px;
+}
+
+.level-row h2 {
+    margin: 0;
+}
+
+.topic-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.topic-list a {
+    display: inline-flex;
+    align-items: center;
+    color: #123;
+    background: #e8f7f5;
+    text-decoration: none;
+}
+
+.study-shell {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.study-side {
+    position: sticky;
+    top: 16px;
+    display: grid;
+    gap: 16px;
+    padding: 20px;
+}
+
+.study-side h1 {
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    text-transform: capitalize;
+}
+
+.mode-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.tab {
+    background: #fff;
+    border: 1px solid var(--line);
+}
+
+.tab.active {
+    color: #fff;
+    background: var(--primary);
+}
+
+.study-main {
+    display: grid;
+}
+
+.content-panel {
+    display: none;
+    padding: clamp(20px, 4vw, 34px);
+}
+
+.content-panel.active {
+    display: grid;
+    gap: 18px;
+}
+
+.content-panel h2 {
+    margin: 0;
+}
+
+.content-panel p {
+    color: var(--muted);
+    font-size: 1.08rem;
+    line-height: 1.7;
+}
+
+.activity-header, .button-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.activity-box {
+    min-height: 130px;
+    padding: 22px;
+    border-radius: 8px;
+    background: #f1f8ff;
+    border: 1px solid #d5e8ff;
+    overflow-wrap: anywhere;
+}
+
+.activity-box p {
+    margin: 0;
+    color: var(--text);
+    font-size: 1.25rem;
+    font-weight: 800;
+    max-width: 100%;
+}
+
+.answer-area {
+    display: grid;
+    gap: 14px;
+}
+
+.options-box {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.option-button {
+    border: 1px solid var(--line);
+    background: #fff;
+    min-width: 0;
+    height: auto;
+    min-height: 48px;
+    padding: 10px 14px;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+.option-button.selected {
+    color: #fff;
+    background: var(--mint);
+}
+
+.hint-box, .feedback-box, .flash {
+    padding: 14px 16px;
+    border-radius: 8px;
+    line-height: 1.55;
+}
+
+.hint-box {
+    background: #fff7e8;
+    border: 1px solid #fed7aa;
+}
+
+.feedback-box {
+    background: #edfdf8;
+    border: 1px solid #99f6e4;
+}
+
+.feedback-box.error {
+    background: #fff1f2;
+    border-color: #fecdd3;
+}
+
+.flash-list {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.flash.error {
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+}
+
+@media (max-width: 880px) {
+    .auth-layout, .study-shell, .level-row {
+        grid-template-columns: 1fr;
+    }
+
+    .discipline-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .study-side {
+        position: static;
+    }
+}
+
+@media (max-width: 560px) {
+    .topbar, .nav, .progress-panel, .activity-header, .button-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .discipline-grid, .options-box {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome-panel {
+        padding: 24px;
+    }
+}
