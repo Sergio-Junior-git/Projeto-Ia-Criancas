@@ -51,8 +51,8 @@ class GroqLearningAI:
     def generate_explanation(self, discipline, level, topic):
         payload = self._chat(
             [
-                {"role": "system", "content": "Voce e um professor brasileiro. Responda de forma curta, clara e adequada para criancas/adolescentes."},
-                {"role": "user", "content": f"Explique o assunto '{topic}' de {DISCIPLINES[discipline]['name']} para o nivel {SCHOOL_LEVELS[level]}. Use 4 a 6 frases."},
+                {"role": "system", "content": "Voce e um professor brasileiro para criancas pequenas. Responda com frases muito curtas, simples e acolhedoras."},
+                {"role": "user", "content": f"Explique o assunto '{topic}' de {DISCIPLINES[discipline]['name']} para o nivel {SCHOOL_LEVELS[level]}. Use no maximo 2 frases curtas."},
             ],
             temperature=0.7,
         )
@@ -62,7 +62,7 @@ class GroqLearningAI:
         excluded = "\n".join(f"- {question}" for question in (excluded_questions or [])[-20:])
         difficulty_description = DIFFICULTY_GUIDE.get(difficulty, DIFFICULTY_GUIDE[1])
         prompt = f"""
-Gere UMA questao nova para um estudante brasileiro.
+Gere UMA atividade nova em formato de joguinho para uma crianca brasileira.
 
 Disciplina: {DISCIPLINES[discipline]['name']}
 Nivel escolar: {SCHOOL_LEVELS[level]}
@@ -72,6 +72,10 @@ Como interpretar a dificuldade: {difficulty_description}
 
 Regras:
 - A pergunta deve ser realmente sobre o assunto obrigatorio e ter UMA unica resposta objetiva.
+- Escreva como se a crianca pudesse ouvir a pergunta em voz alta.
+- Use enunciado curto, com no maximo 90 caracteres quando possivel.
+- Use palavras simples, concretas e visuais: cor, objeto, numero, letra, som, forma ou acao.
+- Prefira atividades de clicar em alternativa. Evite texto digitado para maternal e infantil.
 - Nao repita nenhuma pergunta da lista de perguntas proibidas.
 - Varie contexto, numeros, frase, personagens e tipo de raciocinio.
 - A dificuldade deve aparecer no raciocinio: dificuldade 1 e reconhecimento; 2 e traducao/lacuna simples; 3 aplica regra; 4 tem duas etapas; 5 pede interpretacao ou comparacao objetiva.
@@ -79,12 +83,12 @@ Regras:
 - O JSON deve ter: type, question, expected_answer, hint e explanation.
 - type deve ser "short_answer" ou "multiple_choice".
 - Se type for "multiple_choice", inclua options com 4 alternativas e expected_answer igual a uma delas.
-- Prefira multiple_choice sempre que o aluno puder responder de varios jeitos.
+- Prefira multiple_choice quase sempre, principalmente para maternal, infantil e fundamental 1.
 - Use short_answer somente para resposta de 1 a 4 palavras ou um numero.
 - Nunca use perguntas abertas como "descreva", "explique com suas palavras", "conte sobre", "o que voce faz" ou "escreva uma rotina".
 - Nunca gere uma expected_answer com frase longa. A resposta esperada deve ter no maximo 4 palavras.
-- A dica deve ajudar sem entregar a resposta. Nao use dica generica como "releia o enunciado".
-- A explanation deve explicar em uma frase por que a resposta esta correta.
+- A dica deve ter uma frase curta. Nao use dica generica como "releia o enunciado".
+- A explanation deve ter uma frase curta por que a resposta esta correta.
 - Use portugues simples e sem acentos se for palavra em lingua estrangeira.
 - Nao faca perguntas pessoais nem use primeira/segunda pessoa no enunciado: evite "eu faço", "voce faz", "minha", "meu", "sua", "seu".
 - Nao use estereotipos familiares, exemplo: "pai traz comida para casa".
@@ -106,7 +110,7 @@ Perguntas proibidas:
         for _ in range(2):
             content = self._chat(
                 [
-                    {"role": "system", "content": "Voce cria atividades escolares objetivas e corrigiveis em JSON estrito. Nunca use markdown. Nunca faca perguntas abertas ou pessoais."},
+                    {"role": "system", "content": "Voce cria joguinhos escolares objetivos para criancas pequenas em JSON estrito. Nunca use markdown. Nunca faca perguntas abertas ou pessoais."},
                     {"role": "user", "content": prompt},
                 ],
                 temperature=0.85,
@@ -275,15 +279,13 @@ class LocalLearningAI:
         level_name = SCHOOL_LEVELS.get(level, "serie escolhida")
         discipline_name = DISCIPLINES.get(discipline, {}).get("name", "disciplina")
         starters = {
-            "maternal": "Vamos aprender brincando, observando imagens, sons e palavras simples.",
-            "infantil": "Nesta fase, o ideal e usar exemplos curtos, objetos do dia a dia e repeticao.",
-            "fundamental_1": "Aqui vale resolver passo a passo e explicar o caminho com suas palavras.",
-            "fundamental_2": "Agora o assunto pede mais atencao as regras, comparacoes e justificativas.",
-            "medio": "Neste nivel, a ideia e interpretar o contexto, aplicar conceitos e defender a resposta.",
+            "maternal": "Vamos brincar com imagens, sons e palavras pequenas.",
+            "infantil": "Observe, ouca e escolha a resposta que combina.",
+            "fundamental_1": "Pense com calma e resolva um passo por vez.",
         }
         return (
-            f"Em {discipline_name}, no nivel {level_name}, o assunto '{topic}' deve ser estudado com exemplos "
-            f"adequados para essa etapa. {starters.get(level, starters['fundamental_1'])}"
+            f"Agora vamos estudar {topic} em {discipline_name}. "
+            f"{starters.get(level, starters['fundamental_1'])}"
         )
 
     def generate_activity(self, discipline, level, topic, difficulty, excluded_questions=None):
@@ -331,7 +333,7 @@ class LocalLearningAI:
             start = random.randint(1, 8)
             step = random.choice([1, 2])
             return self._short(f"Complete a sequencia: {start}, {start + step}, {start + 2 * step}, ___", str(start + 3 * step), "Veja quanto aumenta de um numero para o outro.")
-        if topic == "problemas":
+        if topic in ["problemas", "problemas simples"]:
             a, b = self._numbers(level, difficulty)
             stories = [
                 (f"Maria tinha {a} figurinhas e ganhou {b}. Com quantas ficou?", a + b, "Quando ganha, a quantidade aumenta."),
@@ -564,10 +566,10 @@ class LocalLearningAI:
 
     def _generic_activity(self, level, topic, difficulty):
         return self._choice(
-            f"Sobre '{topic}', qual atitude ajuda mais a aprender esse assunto?",
-            ["ler o enunciado com atencao", "responder sem ler", "ignorar a dica", "trocar de assunto"],
-            "ler o enunciado com atencao",
-            "A melhor resposta e a que ajuda a entender o tema escolhido.",
+            f"Qual cartao combina com {topic}?",
+            [topic, "bola", "sol", "casa"],
+            topic,
+            "Procure a palavra igual ao assunto.",
         )
 
     def _numbers(self, level, difficulty):
@@ -603,11 +605,9 @@ class LocalLearningAI:
 
     def _with_context(self, question):
         contexts = [
-            "Atividade",
-            "Questao de revisao",
-            "Exercicio guiado",
             "Desafio rapido",
-            "Pratica do assunto",
+            "Jogo",
+            "Fase",
         ]
         return f"{random.choice(contexts)}: {question}"
 

@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Cadastro | Estudo no Hospital{% endblock %}
+{% block title %}Cadastro | BrincaSaber{% endblock %}
 {% block content %}
 <section class="auth-layout">
     <div class="welcome-panel">
         <span class="eyebrow">Bem-vindo</span>
-        <h1>Crie uma conta para salvar seu progresso.</h1>
-        <p>O site guarda acertos, erros e nivel de dificuldade para continuar do ponto certo depois.</p>
+        <h1>Crie sua entrada no BrincaSaber.</h1>
+        <p>O app guarda seu caminho para voce continuar depois.</p>
     </div>
 
     <form class="auth-card" method="post">
@@ -23,7 +23,7 @@
             Senha
             <input type="password" name="password" required minlength="6" autocomplete="new-password">
         </label>
-        <button class="primary-button" type="submit">Criar conta</button>
+        <button class="primary-button big-action" type="submit">Criar conta</button>
         <p class="switch-auth">Ja tenho conta. <a href="{{ url_for('web.login') }}">Entrar</a></p>
     </form>
 </section>

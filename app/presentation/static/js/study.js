@@ -20,13 +20,6 @@ function speakText(text) {
     window.speechSynthesis.speak(voice);
 }
 
-const state = {
-    requestId: null,
-    hint: "",
-    selectedOption: "",
-    currentType: "short_answer",
-};
-
 const activityBox = document.querySelector("#activityBox");
 const difficultyLabel = document.querySelector("#difficultyLabel");
 const answerInput = document.querySelector("#answerInput");
@@ -35,6 +28,36 @@ const optionsBox = document.querySelector("#optionsBox");
 const feedbackBox = document.querySelector("#feedbackBox");
 const hintBox = document.querySelector("#hintBox");
 const retryButton = document.querySelector("#retryButton");
+const newQuestionButton = document.querySelector("#newQuestion");
+const sendAnswerButton = document.querySelector("#sendAnswer");
+const hintButton = document.querySelector("#hintButton");
+
+const topicVisuals = {
+    vogais: "A E I O U",
+    "sons das letras": "BA",
+    "figuras e palavras": "CASA",
+    "silabas simples": "BO-LA",
+    rimas: "SOL",
+    "nomes de objetos": "BOLA",
+    contagem: "1 2 3",
+    formas: "FORMA",
+    "maior e menor": "5 > 2",
+    "numeros ate 20": "1 2 3",
+    "soma simples": "2 + 1",
+    sequencias: "1 2 3",
+    "operacoes": "3 + 2",
+    "problemas simples": "2 + 2",
+    tabuada: "2 x 3",
+    cores: "AZUL",
+    animais: "GATO",
+    cumprimentos: "OI",
+    numeros: "UNO",
+    familia: "MAE",
+    objetos: "LAPIS",
+    colores: "ROJO",
+    saludos: "HOLA",
+    comidas: "PAN",
+};
 
 function showPanel(targetId) {
     document.querySelectorAll(".content-panel").forEach((panel) => {
@@ -46,7 +69,13 @@ function showPanel(targetId) {
 }
 
 document.querySelectorAll("[data-target], [data-target-tab]").forEach((button) => {
-    button.addEventListener("click", () => showPanel(button.dataset.target || button.dataset.targetTab));
+    button.addEventListener("click", async () => {
+        const targetId = button.dataset.target || button.dataset.targetTab;
+        showPanel(targetId);
+        if (targetId === "activityPanel" && !state.requestId) {
+            await generateQuestion();
+        }
+    });
 });
 
 async function generateQuestion() {
@@ -56,15 +85,11 @@ async function generateQuestion() {
     optionsBox.innerHTML = "";
     answerInput.value = "";
     state.selectedOption = "";
+    state.requestId = null;
 
-    const questionText = createParagraph(activity.question);
-    const listenButton = document.createElement("button");
-    listenButton.className = "hint-button";
-    listenButton.type = "button";
-    listenButton.textContent = "Ouvir";
-    listenButton.addEventListener("click", () => speakText(activity.question));
-
-activityBox.replaceChildren(questionText, listenButton);
+    newQuestionButton.disabled = true;
+    sendAnswerButton.disabled = true;
+    activityBox.replaceChildren(createVisualCard("...", "Preparando um desafio..."));
 
     const response = await fetch("/api/activity/generate", {
         method: "POST",
@@ -80,6 +105,8 @@ activityBox.replaceChildren(questionText, listenButton);
     });
 
     const activity = await response.json();
+    newQuestionButton.disabled = false;
+    sendAnswerButton.disabled = false;
     if (!response.ok) {
         activityBox.replaceChildren(createParagraph(activity.error || "Nao foi possivel gerar a atividade."));
         return;
@@ -87,8 +114,8 @@ activityBox.replaceChildren(questionText, listenButton);
     state.requestId = activity.request_id;
     state.hint = activity.hint;
     state.currentType = activity.type;
-    difficultyLabel.textContent = `Dificuldade ${activity.difficulty} | resposta em ${activity.latency_ms} ms`;
-    activityBox.replaceChildren(createParagraph(activity.question));
+    difficultyLabel.textContent = `Fase ${activity.difficulty}`;
+    activityBox.replaceChildren(createVisualCard(getVisualText(), activity.question));
 
     if (activity.type === "multiple_choice") {
         answerLabel.hidden = true;
@@ -97,23 +124,53 @@ activityBox.replaceChildren(questionText, listenButton);
             button.className = "option-button";
             button.type = "button";
             button.textContent = option;
-            button.addEventListener("dblclick", () => speakText(option));
             button.addEventListener("click", () => {
                 document.querySelectorAll(".option-button").forEach((item) => item.classList.remove("selected"));
                 button.classList.add("selected");
                 state.selectedOption = option;
+                speakText(option);
             });
             optionsBox.appendChild(button);
         });
     } else {
         answerLabel.hidden = false;
+        answerInput.focus();
     }
+
+    speakText(activity.question);
 }
 
 function createParagraph(text) {
     const paragraph = document.createElement("p");
     paragraph.textContent = text;
     return paragraph;
+}
+
+function createVisualCard(visual, question) {
+    const card = document.createElement("div");
+    card.className = "visual-card";
+
+    const visualText = document.createElement("div");
+    visualText.className = "visual-card-symbol";
+    visualText.textContent = visual;
+
+    const questionRow = document.createElement("div");
+    questionRow.className = "visual-card-question";
+    questionRow.appendChild(createParagraph(question));
+
+    const listenButton = document.createElement("button");
+    listenButton.className = "listen-button";
+    listenButton.type = "button";
+    listenButton.textContent = "Ouvir";
+    listenButton.addEventListener("click", () => speakText(question));
+    questionRow.appendChild(listenButton);
+
+    card.append(visualText, questionRow);
+    return card;
+}
+
+function getVisualText() {
+    return topicVisuals[shell.dataset.topic] || shell.dataset.topic.toUpperCase();
 }
 
 async function sendAnswer() {
@@ -151,18 +208,20 @@ async function sendAnswer() {
     }
     feedbackBox.hidden = false;
     feedbackBox.className = result.correct ? "feedback-box" : "feedback-box error";
-    feedbackBox.textContent = `${result.feedback} Proxima dificuldade: ${result.next_difficulty}.`;
+    feedbackBox.textContent = result.correct ? "Muito bem! Voce acertou." : result.feedback;
+    speakText(feedbackBox.textContent);
     retryButton.hidden = result.correct;
 }
 
-document.querySelector("#newQuestion").addEventListener("click", generateQuestion);
-document.querySelector("#sendAnswer").addEventListener("click", sendAnswer);
+newQuestionButton.addEventListener("click", generateQuestion);
+sendAnswerButton.addEventListener("click", sendAnswer);
 document.querySelector("#retryButton").addEventListener("click", () => {
     feedbackBox.hidden = true;
     retryButton.hidden = true;
     answerInput.focus();
 });
-document.querySelector("#hintButton").addEventListener("click", () => {
+hintButton.addEventListener("click", () => {
     hintBox.hidden = false;
     hintBox.textContent = state.hint || "Gere uma questao primeiro para receber uma dica.";
+    speakText(hintBox.textContent);
 });

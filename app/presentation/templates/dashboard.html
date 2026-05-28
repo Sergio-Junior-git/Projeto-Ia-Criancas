@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Disciplinas | Estudo no Hospital{% endblock %}
+{% block title %}BrincaSaber{% endblock %}
 {% block content %}
-<section class="section-heading">
-    <span class="eyebrow">Escolha uma disciplina</span>
-    <h1>O que voce quer estudar agora?</h1>
-    <p>Depois voce escolhe seu nivel escolar e um assunto. As atividades se ajustam ao seu desempenho.</p>
+<section class="section-heading playful-heading">
+    <span class="eyebrow">Vamos brincar de aprender</span>
+    <h1>Escolha uma materia</h1>
+    <p>Toque em um cartao colorido para comecar.</p>
 </section>
 
 <section class="discipline-grid">
@@ -19,10 +19,10 @@
 
 <section class="progress-panel">
     <div>
-        <h2>Seu progresso</h2>
-        <p>As mudancas de dificuldade aparecem conforme voce responde.</p>
+        <h2>Minhas estrelas</h2>
+        <p>Seu caminho aparece aqui.</p>
     </div>
-    <button class="ghost-button" id="resetProgress">Reiniciar progresso</button>
+    <button class="ghost-button" id="resetProgress">Recomecar</button>
 </section>
 
 {% if progress_items %}
@@ -36,7 +36,7 @@
         {% endfor %}
     </div>
 {% else %}
-    <p class="empty-state">Voce ainda nao respondeu atividades. Comece por uma disciplina acima.</p>
+    <p class="empty-state">Escolha uma materia para ganhar suas primeiras estrelas.</p>
 {% endif %}
 
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>

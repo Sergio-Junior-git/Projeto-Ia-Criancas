@@ -11,11 +11,11 @@
     <header class="topbar">
         <a class="brand" href="{{ url_for('web.dashboard') if session.get('user_id') else url_for('web.login') }}">
             <span class="brand-mark">BS</span>
-            <span>Brinca Saber</span>
+            <span>BrincaSaber</span>
         </a>
         {% if session.get("user_id") %}
             <nav class="nav">
-                <span>Ola, {{ session.get("user_name") }}</span>
+                <span>Oi, {{ session.get("user_name") }}</span>
                 <a href="{{ url_for('web.logout') }}">Sair</a>
             </nav>
         {% endif %}

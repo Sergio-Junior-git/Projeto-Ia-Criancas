@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}{{ disciplines[discipline_key].name }} | Estudo no Hospital{% endblock %}
+{% block title %}{{ disciplines[discipline_key].name }} | BrincaSaber{% endblock %}
 {% block content %}
 <section class="section-heading compact">
     <a class="back-link" href="{{ url_for('web.dashboard') }}">Voltar</a>
     <span class="eyebrow">{{ disciplines[discipline_key].name }}</span>
-    <h1>Escolha seu nivel escolar</h1>
+    <h1>Escolha sua fase</h1>
 </section>
 
 <section class="level-stack">
@@ -12,7 +12,7 @@
         <article class="level-row">
             <div>
                 <h2>{{ level_name }}</h2>
-                <p>Assuntos disponiveis para este momento de estudo.</p>
+                <p>Toque em um assunto.</p>
             </div>
             <div class="topic-list">
                 {% for topic in topics[level_key] %}
