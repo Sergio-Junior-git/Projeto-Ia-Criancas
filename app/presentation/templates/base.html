@@ -4,14 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>{% block title %}Estudo no Hospital{% endblock %}</title>
+    <title>{% block title %}BrincaSaber{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <header class="topbar">
         <a class="brand" href="{{ url_for('web.dashboard') if session.get('user_id') else url_for('web.login') }}">
-            <span class="brand-mark">EH</span>
-            <span>Estudo no Hospital</span>
+            <span class="brand-mark">BS</span>
+            <span>Brinca Saber</span>
         </a>
         {% if session.get("user_id") %}
             <nav class="nav">
