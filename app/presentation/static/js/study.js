@@ -20,6 +20,13 @@ function speakText(text) {
     window.speechSynthesis.speak(voice);
 }
 
+const state = {
+    requestId: null,
+    hint: "",
+    selectedOption: "",
+    currentType: "short_answer",
+};
+
 const activityBox = document.querySelector("#activityBox");
 const difficultyLabel = document.querySelector("#difficultyLabel");
 const answerInput = document.querySelector("#answerInput");
