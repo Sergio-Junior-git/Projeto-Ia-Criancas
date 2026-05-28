@@ -83,6 +83,7 @@ Regras:
 - O JSON deve ter: type, question, expected_answer, hint e explanation.
 - type deve ser "short_answer" ou "multiple_choice".
 - Se type for "multiple_choice", inclua options com 4 alternativas e expected_answer igual a uma delas.
+- Para o assunto vogais, pode incluir 5 alternativas: a, e, i, o, u.
 - Prefira multiple_choice quase sempre, principalmente para maternal, infantil e fundamental 1.
 - Use short_answer somente para resposta de 1 a 4 palavras ou um numero.
 - Nunca use perguntas abertas como "descreva", "explique com suas palavras", "conte sobre", "o que voce faz" ou "escreva uma rotina".
@@ -209,7 +210,7 @@ Perguntas proibidas:
         if activity_type == "multiple_choice":
             if expected_answer not in options and len(options) >= 4:
                 options[-1] = expected_answer
-            if len(options) != 4 or expected_answer not in options:
+            if len(options) not in {4, 5} or expected_answer not in options:
                 raise ValueError("Alternativas da IA vieram invalidas.")
             activity["options"] = options
         return activity
@@ -254,7 +255,7 @@ Perguntas proibidas:
             raise ValueError("Resposta curta da IA veio longa demais para correcao objetiva.")
         if activity["type"] == "multiple_choice":
             normalized_options = [self._clean(option) for option in activity.get("options", [])]
-            if len(set(normalized_options)) != 4:
+            if len(normalized_options) not in {4, 5} or len(set(normalized_options)) != len(normalized_options):
                 raise ValueError("Alternativas da IA vieram repetidas ou equivalentes.")
             if self._clean(activity["expected_answer"]) not in normalized_options:
                 raise ValueError("Resposta esperada nao aparece nas alternativas.")
@@ -313,26 +314,31 @@ class LocalLearningAI:
     def _math_activity(self, level, topic, difficulty):
         if topic == "contagem":
             total = random.randint(2, 5 + difficulty)
-            return self._short(f"Conte os objetos: {'* ' * total}Quantos tem?", str(total), "Aponte um por um e conte em voz alta.")
+            return self._choice(f"Conte: {'* ' * total} Quantos tem?", self._number_options(total), str(total), "Aponte um por um e conte em voz alta.")
         if topic == "formas":
             shape, sides = random.choice([("triangulo", "3"), ("quadrado", "4"), ("retangulo", "4")])
-            return self._short(f"Quantos lados tem um {shape}?", sides, "Conte cada lado da figura.")
+            return self._choice(f"Quantos lados tem um {shape}?", ["2", "3", "4", "5"], sides, "Conte cada lado da figura.")
         if topic == "maior e menor":
             a, b = self._numbers(level, difficulty)
-            return self._short(f"Qual numero e maior: {a} ou {b}?", str(max(a, b)), "Compare quem aparece mais para frente na contagem.")
+            if a == b:
+                b += 1
+            return self._choice(f"Qual numero e maior: {a} ou {b}?", self._number_options(max(a, b)), str(max(a, b)), "Compare quem aparece mais para frente na contagem.")
         if topic in ["numeros ate 20", "soma simples", "operacoes"]:
             a, b = self._numbers(level, difficulty)
             if difficulty >= 4:
                 multiplier = random.randint(2, 9)
-                return self._short(f"Resolva: {a} + {b} x {multiplier}", str(a + b * multiplier), "Resolva primeiro a multiplicacao.")
+                answer = a + b * multiplier
+                return self._choice(f"Resolva: {a} + {b} x {multiplier}", self._number_options(answer), str(answer), "Resolva primeiro a multiplicacao.")
             if difficulty >= 3:
                 total = a + b
-                return self._short(f"Complete: {a} + ___ = {total}", str(b), "Descubra quanto falta para chegar ao total.")
-            return self._short(f"Resolva a soma: {a} + {b}", str(a + b), "Some o segundo numero contando para frente.")
+                return self._choice(f"Complete: {a} + ___ = {total}", self._number_options(b), str(b), "Descubra quanto falta para chegar ao total.")
+            answer = a + b
+            return self._choice(f"Quanto e {a} + {b}?", self._number_options(answer), str(answer), "Some contando para frente.")
         if topic == "sequencias":
             start = random.randint(1, 8)
             step = random.choice([1, 2])
-            return self._short(f"Complete a sequencia: {start}, {start + step}, {start + 2 * step}, ___", str(start + 3 * step), "Veja quanto aumenta de um numero para o outro.")
+            answer = start + 3 * step
+            return self._choice(f"Complete: {start}, {start + step}, {start + 2 * step}, ___", self._number_options(answer), str(answer), "Veja quanto aumenta de um numero para o outro.")
         if topic in ["problemas", "problemas simples"]:
             a, b = self._numbers(level, difficulty)
             stories = [
@@ -341,11 +347,12 @@ class LocalLearningAI:
                 (f"Uma caixa tem {a} fileiras com {min(b, 10)} lapis em cada. Quantos lapis ha no total?", a * min(b, 10), "Multiplique fileiras pela quantidade em cada uma."),
             ]
             question, answer, hint = random.choice(stories[: min(difficulty, len(stories))])
-            return self._short(question, str(answer), hint)
+            return self._choice(question, self._number_options(answer), str(answer), hint)
         if topic == "tabuada":
             a = random.randint(2, min(5 + difficulty, 10))
             b = random.randint(2, 10)
-            return self._short(f"Quanto e {a} x {b}?", str(a * b), "Multiplicacao e soma repetida.")
+            answer = a * b
+            return self._choice(f"Quanto e {a} x {b}?", self._number_options(answer), str(answer), "Multiplicacao e soma repetida.")
         if topic == "fracoes":
             if difficulty >= 4:
                 denominator = random.choice([4, 5, 8, 10])
@@ -382,16 +389,17 @@ class LocalLearningAI:
     def _portuguese_activity(self, level, topic, difficulty):
         if topic == "vogais":
             word = random.choice(["aviao", "escola", "ilha", "ovo", "uva"])
-            return self._short(f"Qual e a primeira vogal da palavra '{word}'?", word[0], "As vogais sao a, e, i, o, u.")
-        if topic == "nomes e sons":
+            return self._choice(f"Toque na primeira vogal de '{word}'.", ["a", "e", "i", "o", "u"], word[0], "As vogais sao a, e, i, o, u.")
+        if topic in ["nomes e sons", "sons das letras"]:
             word = random.choice(["bola", "casa", "mesa", "pato"])
-            return self._short(f"A palavra '{word}' comeca com qual letra?", word[0], "Fale a palavra devagar.")
+            options = self._letter_options(word[0])
+            return self._choice(f"Qual letra comeca a palavra '{word}'?", options, word[0], "Fale a palavra devagar.")
         if topic == "figuras e palavras":
             item = random.choice([("bola", ["bola", "copo", "livro", "sapato"]), ("casa", ["casa", "mesa", "pato", "dado"]), ("mala", ["mala", "lua", "peixe", "sol"])])
             return self._choice(f"Qual palavra combina com a figura de uma {item[0]}?", item[1], item[0], "Procure a palavra que nomeia o objeto.")
-        if topic == "silabas":
+        if topic in ["silabas", "silabas simples"]:
             word, count, split = random.choice([("banana", "3", "ba-na-na"), ("cavalo", "3", "ca-va-lo"), ("sol", "1", "sol"), ("janela", "3", "ja-ne-la"), ("borboleta", "4", "bor-bo-le-ta")])
-            return self._short(f"Quantas silabas tem a palavra '{word}'?", count, f"Separe assim: {split}.")
+            return self._choice(f"Quantas partes tem '{word}'?", ["1", "2", "3", "4"], count, f"Separe assim: {split}.")
         if topic == "rimas":
             base, answer, options = random.choice([
                 ("pato", "gato", ["gato", "mesa", "caderno", "sol"]),
@@ -399,11 +407,16 @@ class LocalLearningAI:
                 ("cafe", "chule", ["chule", "casa", "dado", "verde"]),
             ])
             return self._choice(f"Qual palavra rima com '{base}'?", options, answer, "Rima quando o final tem som parecido.")
-        if topic == "leitura de palavras":
+        if topic in ["leitura de palavras", "nomes de objetos"]:
             return random.choice([
                 self._choice("Qual palavra indica um animal?", ["cavalo", "janela", "lapis", "rua"], "cavalo", "Pense em seres vivos."),
                 self._choice("Qual palavra indica um objeto escolar?", ["caderno", "gato", "chuva", "praia"], "caderno", "Pense no que usamos para estudar."),
                 self._choice("Qual palavra indica um lugar?", ["escola", "azul", "correr", "feliz"], "escola", "Lugar e onde alguem pode estar."),
+            ])
+        if topic == "frases curtas":
+            return random.choice([
+                self._choice("Qual frase fala de uma bola?", ["A bola caiu.", "O sol dormiu.", "A lua comeu.", "O livro pulou."], "A bola caiu.", "Procure a palavra bola."),
+                self._choice("Qual frase combina com uma casa?", ["A casa e azul.", "O peixe voa.", "A mesa canta.", "O lapis nada."], "A casa e azul.", "Procure a palavra casa."),
             ])
         if topic == "interpretacao de texto":
             items = [
@@ -477,6 +490,8 @@ class LocalLearningAI:
             "familia": [("mother", "mae"), ("father", "pai"), ("sister", "irma")],
             "objetos": [("book", "livro"), ("pencil", "lapis"), ("chair", "cadeira")],
             "rotina": [("I wake up", "eu acordo"), ("I study", "eu estudo"), ("I sleep", "eu durmo")],
+            "palavras do dia a dia": [("water", "agua"), ("sun", "sol"), ("house", "casa")],
+            "frases simples": [("I like blue", "eu gosto de azul"), ("Good morning", "bom dia"), ("It is a book", "e um livro")],
         }
         if topic == "verbo to be":
             question, answer, hint = random.choice([
@@ -562,7 +577,16 @@ class LocalLearningAI:
         if not pairs:
             return self._generic_activity("fundamental_1", topic, 1)
         source, target = random.choice(pairs)
-        return self._short(f"Traduza para portugues: '{source}'", target, "Pense no contexto do assunto escolhido.")
+        options = [target]
+        for _, candidate in pairs:
+            if candidate not in options:
+                options.append(candidate)
+        for candidate in ["bola", "casa", "sol", "azul"]:
+            if len(options) >= 4:
+                break
+            if candidate not in options:
+                options.append(candidate)
+        return self._choice(f"Qual cartao significa '{source}'?", options[:4], target, "Escute a palavra e escolha o significado.")
 
     def _generic_activity(self, level, topic, difficulty):
         return self._choice(
@@ -571,6 +595,28 @@ class LocalLearningAI:
             topic,
             "Procure a palavra igual ao assunto.",
         )
+
+    def _number_options(self, answer):
+        answer = int(answer)
+        candidates = [answer, answer - 1, answer + 1, answer + 2, max(0, answer - 2)]
+        options = []
+        for value in candidates:
+            if value >= 0 and value not in options:
+                options.append(value)
+        value = 0
+        while len(options) < 4:
+            if value not in options:
+                options.append(value)
+            value += 1
+        return [str(value) for value in options[:4]]
+
+    def _letter_options(self, answer):
+        letters = [answer, "a", "e", "i", "o", "u", "b", "c", "m", "p", "s"]
+        options = []
+        for letter in letters:
+            if letter not in options:
+                options.append(letter)
+        return options[:5] if answer in ["a", "e", "i", "o", "u"] else options[:4]
 
     def _numbers(self, level, difficulty):
         limits = {
@@ -604,12 +650,7 @@ class LocalLearningAI:
         }
 
     def _with_context(self, question):
-        contexts = [
-            "Desafio rapido",
-            "Jogo",
-            "Fase",
-        ]
-        return f"{random.choice(contexts)}: {question}"
+        return question
 
     def _clean(self, value):
         normalized = unicodedata.normalize("NFD", str(value).lower().strip())

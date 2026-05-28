@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ topic }} | BrincaSaber{% endblock %}
 {% block content %}
-<section class="study-shell" data-discipline="{{ discipline_key }}" data-level="{{ level_key }}" data-topic="{{ topic }}">
+<section class="study-shell" data-discipline="{{ discipline_key }}" data-level="{{ level_key }}" data-topic="{{ topic }}" data-game-mode="intro">
     <aside class="study-side">
         <a class="back-link" href="{{ url_for('web.discipline', discipline=discipline_key) }}">Voltar</a>
         <span class="eyebrow">{{ disciplines[discipline_key].name }} | {{ levels[level_key] }}</span>
@@ -23,9 +23,9 @@
             <div class="activity-header">
                 <div>
                     <h2>Jogo rapido</h2>
-                    <p id="difficultyLabel">Fase 1</p>
+                    <p id="difficultyLabel">Atividade 1 | Nivel 1</p>
                 </div>
-                <button class="ghost-button" id="newQuestion">Novo desafio</button>
+                <button class="ghost-button" id="newQuestion">Recomecar fase</button>
             </div>
 
             <div id="activityBox" class="activity-box">
