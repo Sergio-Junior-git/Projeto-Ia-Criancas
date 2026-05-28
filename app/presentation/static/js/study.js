@@ -7,6 +7,19 @@ const state = {
     currentType: "short_answer",
 };
 
+function speakText(text) {
+    if (!("speechSynthesis" in window)) {
+        alert("Este navegador nao consegue ler o texto em voz alta.");
+        return;
+    }
+
+    const voice = new SpeechSynthesisUtterance(text);
+    voice.lang = "pt-BR";
+    voice.rate = 0.85;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(voice);
+}
+
 const activityBox = document.querySelector("#activityBox");
 const difficultyLabel = document.querySelector("#difficultyLabel");
 const answerInput = document.querySelector("#answerInput");
@@ -37,7 +50,14 @@ async function generateQuestion() {
     answerInput.value = "";
     state.selectedOption = "";
 
-    activityBox.replaceChildren(createParagraph("Gerando atividade..."));
+    const questionText = createParagraph(activity.question);
+    const listenButton = document.createElement("button");
+    listenButton.className = "hint-button";
+    listenButton.type = "button";
+    listenButton.textContent = "Ouvir";
+    listenButton.addEventListener("click", () => speakText(activity.question));
+
+activityBox.replaceChildren(questionText, listenButton);
 
     const response = await fetch("/api/activity/generate", {
         method: "POST",
@@ -70,6 +90,7 @@ async function generateQuestion() {
             button.className = "option-button";
             button.type = "button";
             button.textContent = option;
+            button.addEventListener("dblclick", () => speakText(option));
             button.addEventListener("click", () => {
                 document.querySelectorAll(".option-button").forEach((item) => item.classList.remove("selected"));
                 button.classList.add("selected");
